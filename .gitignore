@@ -1,0 +1,38 @@
+# Virtual environments
+.venv/
+venv/
+
+# Secrets
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Generated databases and embeddings
+*.db
+*.sqlite
+*.sqlite3
+*.npy
+*.npz
+
+# Downloaded source data
+data/raw/
+
+# Generated evaluation results
+eval/runs/
+eval/archive/
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+data/embedding_ids.json
