@@ -1,6 +1,6 @@
 # RegulaAI – Legal RAG System for DORA
 
-![alt text](image.png)
+![App Overview](assets/screenshot1.png)
 
 An experimental Retrieval-Augmented Generation (RAG) system for retrieving and answering questions about the **Digital Operational Resilience Act (DORA), Regulation (EU) 2022/2554**.
 
@@ -194,7 +194,7 @@ Number of in-scope questions: **11**
 | Paragraph Recall@6 | 0.667 | 0.889 | 0.889 | 0.889 | 0.889 | 0.889 |
 | Context Paragraph Recall | 0.667 | 0.889 | 0.889 | 0.889 | 1.000 | 0.889 |
 
-![alt text](image-1.png)
+![Search Results](assets/screenshot2.png)
 
 ### Metric definitions
 
