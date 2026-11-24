@@ -58,7 +58,7 @@ $$
 
 A channel contributes nothing when a chunk is absent from that channel's
 returned list. In the implementation, the loop uses zero-based
-enumeration and adds the contribution (w/(K + rank + 1)), which is the
+enumeration and adds the contribution $$ (w/(K + rank + 1)) $$, which is the
 one-based-rank form shown above.
 
 **Important:** after sorting by this score, direct and definition
@@ -99,7 +99,9 @@ cross-encoder reranking.
 
 Formula:
 
-$$ S_A(d) = `\frac{1}{60+r_s(d)}`{=tex} + `\frac{1}{60+r_k(d)}`{=tex} $$
+$$ 
+S_A(d) = `\frac{1}{60+r_s(d)}`{=tex} + `\frac{1}{60+r_k(d)}`{=tex} 
+$$
 
 This is the baseline against which the later additions are compared.
 
@@ -121,7 +123,9 @@ chunks.
 
 The score is the A score plus:
 
-$$ 1.0 `\cdot `{=tex}I\_{direct}(d) $$
+$$ 
+1.0 `\cdot `{=tex}I\_{direct}(d) 
+$$
 
 The final pinned ordering means direct hits are placed ahead of the rest
 regardless of whether their RRF score alone would have put them there.
@@ -143,8 +147,10 @@ Exact matches are preferred; a limited substring fallback is also used.
 Definition matches receive the same explicit boost as direct hits and
 are included in the pinned set:
 
-$$ S\_{B1}(d) = S_A(d) + 1.0 `\cdot `{=tex}I\_{direct
-`\lor `{=tex}definition}(d) $$
+$$ 
+S\_{B1}(d) = S_A(d) + 1.0 `\cdot `{=tex}I\_{direct
+`\lor `{=tex}definition}(d) 
+$$
 
 with direct and definition hits pinned before the remaining candidates.
 
@@ -163,7 +169,9 @@ excluded from this title index.
 
 A title match receives a small additive bonus:
 
-$$ S\_{B2}(d) = S\_{B1}(d) + 0.03 `\cdot `{=tex}I\_{title}(d) $$
+$$ 
+S\_{B2}(d) = S\_{B1}(d) + 0.03 `\cdot `{=tex}I\_{title}(d) 
+$$
 
 Unlike direct and definition matches, title matches are not pinned. They
 compete through the combined score.
@@ -179,9 +187,11 @@ B3 = replace(B2, name="B3", w_sem=1.5)
 B3 increases the semantic RRF weight from 1.0 to 1.5. Keyword weight
 remains 1.0.
 
-$$ S\_{B3}(d) = 1.0 `\cdot `{=tex}I\_{explicit}(d) + 0.03
+$$ 
+S\_{B3}(d) = 1.0 `\cdot `{=tex}I\_{explicit}(d) + 0.03
 `\cdot `{=tex}I\_{title}(d) + `\frac{1.5}{60+r_s(d)}`{=tex} +
-`\frac{1.0}{60+r_k(d)}`{=tex} $$
+`\frac{1.0}{60+r_k(d)}`{=tex} 
+$$
 
 The code comment explicitly says to tune this value on the development
 set only.
