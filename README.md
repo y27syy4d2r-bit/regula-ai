@@ -149,21 +149,21 @@ The reranker is applied to the remaining candidate set rather than replacing the
 
 The initial hybrid ranking combines semantic and keyword retrieval using a weighted reciprocal-rank formula:
 
-\[
+$$
 S(d)=
 \frac{w_s}{k_0+r_s(d)}
 +
 \frac{w_k}{k_0+r_k(d)}
-\]
+$$
 
 Where:
 
-- \(S(d)\): combined score of document \(d\).
-- \(w_s\): semantic retrieval weight.
-- \(w_k\): keyword retrieval weight.
-- \(k_0\): RRF constant.
-- \(r_s(d)\): semantic rank.
-- \(r_k(d)\): keyword rank.
+- $S(d)$: combined score of document \(d\).
+- $w_s$: semantic retrieval weight.
+- $w_k$: keyword retrieval weight.
+- $k_0$: RRF constant.
+- $r_s(d)$: semantic rank.
+- $r_k(d)$: keyword rank.
 
 Additional signals are incorporated:
 
