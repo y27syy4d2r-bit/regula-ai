@@ -41,20 +41,20 @@ BM25 determines the keyword result order.
 
 Let:
 
--   (r_s(d)) be the one-based rank of chunk (d) in semantic results;
--   (r_k(d)) be its one-based rank in keyword results;
--   (w\_{sem}) and (w\_{kw}) be channel weights;
--   \(K\) be the RRF constant (`rrf_k`, set to 60);
--   (I\_{explicit}(d)) indicate that (d) was returned by direct article
-    lookup or definition routing;
--   (I\_{title}(d)) indicate that (d) matched the article-title rule;
--   (b\_{explicit}) be `explicit_boost` (1.0);
--   (b\_{title}) be `title_bonus` (0.03).
+- $r_s(d)$ be the one-based rank of chunk $d$ in the semantic results (0 if $d$ is not in that list);
+- $r_k(d)$ be its one-based rank in the keyword results (0 if absent);
+- $w_{\text{sem}}$ and $w_{\text{kw}}$ be the channel weights;
+- $K$ be the RRF constant (`rrf_k`, set to 60);
+- $I_{\text{explicit}}(d) = 1$ if $d$ was returned by direct article lookup or definition routing, otherwise 0;
+- $I_{\text{title}}(d) = 1$ if $d$ is the first chunk of an article whose title words all appear in the question, otherwise 0;
+- $b_{\text{explicit}}$ be `explicit_boost` (1.0);
+- $b_{\text{title}}$ be `title_bonus` (0.03).
 
 The fused score implemented by the code is:
 
-\[ S(d) = b\_{explicit} I\_{explicit}(d) + b\_{title} I\_{title}(d) +
-`\frac{w_{sem}}{K+r_s(d)}`{=tex} + `\frac{w_{kw}}{K+r_k(d)}`{=tex} \]
+$$
+S(d) = b_{\text{explicit}}\, I_{\text{explicit}}(d) + b_{\text{title}}\, I_{\text{title}}(d) + [r_s(d) > 0]\,\frac{w_{\text{sem}}}{K + r_s(d)} + [r_k(d) > 0]\,\frac{w_{\text{kw}}}{K + r_k(d)}
+$$
 
 A channel contributes nothing when a chunk is absent from that channel's
 returned list. In the implementation, the loop uses zero-based
@@ -69,25 +69,16 @@ score order, followed by the remaining candidates.
 
 ## Configuration sequence
 
-  -----------------------------------------------------------------------------
-  Version         Direct   Definition  Title bonus     Semantic   Cross-encoder
-                  lookup      routing                    weight 
-  --------- ------------ ------------ ------------ ------------ ---------------
-  A                  Off          Off          Off          1.0             Off
+| Version | Direct lookup | Definition routing | Title bonus | Semantic weight | Cross-encoder |
+|:-------:|:-------------:|:------------------:|:-----------:|:---------------:|:-------------:|
+| A       | Off           | Off                | Off         | 1.0             | Off           |
+| B0      | On            | Off                | Off         | 1.0             | Off           |
+| B1      | On            | On                 | Off         | 1.0             | Off           |
+| B2      | On            | On                 | On          | 1.0             | Off           |
+| B3      | On            | On                 | On          | 1.5             | Off           |
+| C       | On            | On                 | On          | 1.5             | On            |
 
-  B0                  On          Off          Off          1.0             Off
-
-  B1                  On           On          Off          1.0             Off
-
-  B2                  On           On           On          1.0             Off
-
-  B3                  On           On           On          1.5             Off
-
-  C                   On           On           On          1.5              On
-  -----------------------------------------------------------------------------
-
-All configurations retain keyword weight 1.0 and RRF constant 60. The
-explicit boost is 1.0 and title bonus is 0.03.
+All configurations retain keyword weight 1.0 and RRF constant 60. The explicit boost is 1.0 and the title bonus is 0.03.
 
 ### A --- Semantic + keyword baseline
 
@@ -108,7 +99,7 @@ cross-encoder reranking.
 
 Formula:
 
-\[ S_A(d) = `\frac{1}{60+r_s(d)}`{=tex} + `\frac{1}{60+r_k(d)}`{=tex} \]
+$$ S_A(d) = `\frac{1}{60+r_s(d)}`{=tex} + `\frac{1}{60+r_k(d)}`{=tex} $$
 
 This is the baseline against which the later additions are compared.
 
@@ -130,7 +121,7 @@ chunks.
 
 The score is the A score plus:
 
-\[ 1.0 `\cdot `{=tex}I\_{direct}(d) \]
+$$ 1.0 `\cdot `{=tex}I\_{direct}(d) $$
 
 The final pinned ordering means direct hits are placed ahead of the rest
 regardless of whether their RRF score alone would have put them there.
@@ -152,8 +143,8 @@ Exact matches are preferred; a limited substring fallback is also used.
 Definition matches receive the same explicit boost as direct hits and
 are included in the pinned set:
 
-\[ S\_{B1}(d) = S_A(d) + 1.0 `\cdot `{=tex}I\_{direct
-`\lor `{=tex}definition}(d) \]
+$$ S\_{B1}(d) = S_A(d) + 1.0 `\cdot `{=tex}I\_{direct
+`\lor `{=tex}definition}(d) $$
 
 with direct and definition hits pinned before the remaining candidates.
 
@@ -172,7 +163,7 @@ excluded from this title index.
 
 A title match receives a small additive bonus:
 
-\[ S\_{B2}(d) = S\_{B1}(d) + 0.03 `\cdot `{=tex}I\_{title}(d) \]
+$$ S\_{B2}(d) = S\_{B1}(d) + 0.03 `\cdot `{=tex}I\_{title}(d) $$
 
 Unlike direct and definition matches, title matches are not pinned. They
 compete through the combined score.
@@ -188,9 +179,9 @@ B3 = replace(B2, name="B3", w_sem=1.5)
 B3 increases the semantic RRF weight from 1.0 to 1.5. Keyword weight
 remains 1.0.
 
-\[ S\_{B3}(d) = 1.0 `\cdot `{=tex}I\_{explicit}(d) + 0.03
+$$ S\_{B3}(d) = 1.0 `\cdot `{=tex}I\_{explicit}(d) + 0.03
 `\cdot `{=tex}I\_{title}(d) + `\frac{1.5}{60+r_s(d)}`{=tex} +
-`\frac{1.0}{60+r_k(d)}`{=tex} \]
+`\frac{1.0}{60+r_k(d)}`{=tex} $$
 
 The code comment explicitly says to tune this value on the development
 set only.
