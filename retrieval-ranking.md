@@ -58,12 +58,7 @@ $$
 
 A channel contributes nothing when a chunk is absent from that channel's
 returned list. In the implementation, the loop uses zero-based
-enumeration and adds the contribution 
-$$
-\frac{w}{K + r}
-$$
-, which is the
-one-based-rank form shown above.
+enumeration and adds the contribution $$\frac{w}{K + r}$$ which is the one-based-rank form shown above.
 
 **Important:** after sorting by this score, direct and definition
 matches are separated into a `pinned` list and placed before all other
