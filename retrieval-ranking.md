@@ -123,8 +123,8 @@ chunks.
 
 The score is the A score plus:
 
-$$ 
-1.0 `\cdot `{=tex}I\_{direct}(d) 
+$$
+1.0 \cdot I_{\text{direct}}(d)
 $$
 
 The final pinned ordering means direct hits are placed ahead of the rest
